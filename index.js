@@ -1,22 +1,15 @@
+// index.js
 import express from 'express';
+import postRoutes from './src/routes/post.routes.js';
 
 const app = express();
 const port = 3000;
 
-/* app.get('/', (req, res) => {
-  res.status(200).send('Hello World!');
-}); */
+app.use(express.json());
 
-app.get('/hello/:name', (req, res) => {
-  const name = req.params.name;
-  console.log(`Hello ${name}`);
-  res.status(200).send(`Hello ${name}!`);
+// Mount the post routes
+app.use('/posts', postRoutes);
+
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
 });
-
-app.get('/:id', (req, res) => {
-  const id = req.params.id;
-  console.log(`Received ID: ${id}`);
-  res.status(200).send(`Received ID: ${id}`);
-});
-
-app.listen(port, () => console.log(`Server is running at http://localhost:${port}`));
