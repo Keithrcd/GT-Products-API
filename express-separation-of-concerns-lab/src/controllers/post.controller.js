@@ -1,52 +1,71 @@
 import * as postService from '../services/post.service.js';
 
-    export const getAllPosts = (req, res) => {
-        const posts = postService.getAllPosts();
+export const getAllPosts = async (req, res) => {
+    try {
+        const posts = await postService.getAllPosts();
         res.json(posts);
-    };
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving posts', error: error.message });
+    }
+};
 
-    export const getPostById = (req, res) => {
-        const postId = parseInt(req.params.id, 10);
-        const post = postService.getPostById(postId);
+export const getPostById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const post = await postService.getPostById(id);
         if (!post) {
-            return res.status(404).json({ message: 'Post not found.' });
+            return res.status(404).json({ message: 'Post not found' });
         }
         res.json(post);
-    };
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving post', error: error.message });
+    }
+};
 
-    export const createPost = (req, res) => {
-        const { title, content } = req.body;
-        if (!title || !content) {
-            return res.status(400).json({ message: 'Title and content are required.' });
-        }
-        const newPost = postService.createPost({ title, content });
+export const createPost = async (req, res) => {
+    try {
+        const newPost = await postService.createPost(req.body);
         res.status(201).json(newPost);
-    };
+    } catch (error) {
+        res.status(500).json({ message: 'Error creating post', error: error.message });
+    }
+};
 
-    export const updatePost = (req, res) => {
-        const postId = parseInt(req.params.id, 10);
-        const post = postService.updatePost(postId, req.body);
-        if (!post) {
-            return res.status(404).json({ message: 'Post not found.' });
+export const updatePost = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updatedPost = await postService.updatePost(id, req.body);
+        if (!updatedPost) {
+            return res.status(404).json({ message: 'Post not found' });
         }
-        res.json(post);
-    };
+        res.json(updatedPost);
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating post', error: error.message });
+    }
+};
 
-    export const partiallyUpdatePost = (req, res) => {
-        const postId = parseInt(req.params.id, 10);
-        // req.body will contain the fields to update, e.g., { title: "New Title" }
-        const post = postService.partiallyUpdatePost(postId, req.body);
-        if (!post) {
-            return res.status(404).json({ message: 'Post not found.' });
+export const partiallyUpdatePost = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updatedPost = await postService.partiallyUpdatePost(id, req.body);
+        if (!updatedPost) {
+            return res.status(404).json({ message: 'Post not found' });
         }
-        res.json(post);
-    };
+        res.json(updatedPost);
+    } catch (error) {
+        res.status(500).json({ message: 'Error partially updating post', error: error.message });
+    }
+};
 
-    export const deletePost = (req, res) => {
-        const postId = parseInt(req.params.id, 10);
-        const success = postService.deletePost(postId);
+export const deletePost = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const success = await postService.deletePost(id);
         if (!success) {
-            return res.status(404).json({ message: 'Post not found.' });
+            return res.status(404).json({ message: 'Post not found' });
         }
-        res.status(204).send();
-    };
+        res.json({ message: 'Post deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting post', error: error.message });
+    }
+};
