@@ -1,71 +1,49 @@
 import * as postService from '../services/post.service.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
+import asyncHandler from 'express-async-handler';
 
-export const getAllPosts = async (req, res) => {
-    try {
-        const posts = await postService.getAllPosts();
-        res.json(posts);
-    } catch (error) {
-        res.status(500).json({ message: 'Error retrieving posts', error: error.message });
-    }
-};
+export const getAllPosts = asyncHandler(async (req, res) => {
+    const posts = await postService.getAllPosts();
+    return res
+        .status(200)
+        .json(new ApiResponse(200, posts, "Posts retrieved successfully"));
+});
 
-export const getPostById = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const post = await postService.getPostById(id);
-        if (!post) {
-            return res.status(404).json({ message: 'Post not found' });
-        }
-        res.json(post);
-    } catch (error) {
-        res.status(500).json({ message: 'Error retrieving post', error: error.message });
-    }
-};
+export const getPostById = asyncHandler(async (req, res) => {
+    const postId = parseInt(req.params.id, 10);
+    const post = await postService.getPostById(postId);
+    return res
+        .status(200)
+        .json(new ApiResponse(200, post, "Post retrieved successfully"));
+});
 
-export const createPost = async (req, res) => {
-    try {
-        const newPost = await postService.createPost(req.body);
-        res.status(201).json(newPost);
-    } catch (error) {
-        res.status(500).json({ message: 'Error creating post', error: error.message });
-    }
-};
+export const createPost = asyncHandler(async (req, res) => {
+    const newPost = await postService.createPost(req.body);
+    return res
+        .status(201)
+        .json(new ApiResponse(201, newPost, "Post created successfully"));
+});
 
-export const updatePost = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const updatedPost = await postService.updatePost(id, req.body);
-        if (!updatedPost) {
-            return res.status(404).json({ message: 'Post not found' });
-        }
-        res.json(updatedPost);
-    } catch (error) {
-        res.status(500).json({ message: 'Error updating post', error: error.message });
-    }
-};
+export const updatePost = asyncHandler(async (req, res) => {
+    const postId = parseInt(req.params.id, 10);
+    const updatedPost = await postService.updatePost(postId, req.body);
+    return res
+        .status(200)
+        .json(new ApiResponse(200, updatedPost, "Post updated successfully"));
+});
 
-export const partiallyUpdatePost = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const updatedPost = await postService.partiallyUpdatePost(id, req.body);
-        if (!updatedPost) {
-            return res.status(404).json({ message: 'Post not found' });
-        }
-        res.json(updatedPost);
-    } catch (error) {
-        res.status(500).json({ message: 'Error partially updating post', error: error.message });
-    }
-};
+export const partiallyUpdatePost = asyncHandler(async (req, res) => {
+    const postId = parseInt(req.params.id, 10);
+    const updatedPost = await postService.partiallyUpdatePost(postId, req.body);
+    return res
+        .status(200)
+        .json(new ApiResponse(200, updatedPost, "Post partially updated successfully"));
+});
 
-export const deletePost = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const success = await postService.deletePost(id);
-        if (!success) {
-            return res.status(404).json({ message: 'Post not found' });
-        }
-        res.json({ message: 'Post deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error deleting post', error: error.message });
-    }
-};
+export const deletePost = asyncHandler(async (req, res) => {
+    const postId = parseInt(req.params.id, 10);
+    await postService.deletePost(postId);
+    return res
+        .status(200)
+        .json(new ApiResponse(200, null, "Post deleted successfully"));
+});

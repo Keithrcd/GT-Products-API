@@ -1,7 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import postRoutes from './src/routes/post.routes.js'; 
+import postRoutes from './src/routes/post.routes.js';
 import { testConnection } from './src/config/db.js';
+import { errorHandler } from './src/middlewares/errorHandler.middleware.js';
 
 dotenv.config();
 
@@ -10,11 +11,14 @@ app.use(express.json());
 
 app.use('/posts', postRoutes);
 
+app.use(errorHandler);
+
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
     try {
         await testConnection();
+
         app.listen(PORT, () => {
             console.log(`🚀 Server is running on http://localhost:${PORT}`);
         });
