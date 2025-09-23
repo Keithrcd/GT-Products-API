@@ -1,6 +1,6 @@
 // index.js
 import express from 'express';
-import postRoutes from './express-separation-of-concerns-lab/src/routes/post.routes.js';
+import postRoutes from '../express-separation-of-concerns-lab/src/routes/post.routes.js';
 
 const app = express();
 const port = 3000;
