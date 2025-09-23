@@ -1,48 +1,27 @@
 import * as commentService from '../services/comment.service.js';
-import { ApiError } from '../utils/ApiError.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
+import asyncHandler from 'express-async-handler';
 
-export const getAllComments = async (req, res, next) => {
-  try {
-    const comments = await commentService.getAllComments();
-    res.status(200).json(comments);
-  } catch (error) {
-    next(error instanceof ApiError ? error : new ApiError(500, 'Error fetching all comments'));
-  }
-};
+export const getAllComments = asyncHandler(async (req, res) => {
+  const comments = await commentService.getAllComments();
+  res
+    .status(200)
+    .json(new ApiResponse(200, comments, "Comments retrieved successfully"));
+});
 
-export const getCommentsByPostId = async (req, res, next) => {
-  try {
-    const postId = parseInt(req.params.postId, 10);
+export const getCommentsByPostId = asyncHandler(async (req, res) => {
+  const postId = parseInt(req.params.postId, 10);
+  const comments = await commentService.getCommentsByPostId(postId);
+  res
+    .status(200)
+    .json(new ApiResponse(200, comments, "Comments retrieved successfully"));
+});
 
-    if (isNaN(postId)) {
-      throw new ApiError(400, 'Invalid postId');
-    }
+export const createCommentForPost = asyncHandler(async (req, res) => {
+  const postId = parseInt(req.params.postId, 10);
+  const newComment = await commentService.createComment(postId, req.body);
+  res
+    .status(201)
+    .json(new ApiResponse(201, newComment, "Comment created successfully"));
+});
 
-    const comments = await commentService.getCommentsByPostId(postId);
-    res.status(200).json(comments);
-  } catch (error) {
-    next(error instanceof ApiError ? error : new ApiError(500, 'Error fetching comments for this post'));
-  }
-};
-
-export const createComment = async (req, res, next) => {
-  try {
-    const postId = parseInt(req.params.postId, 10);
-    const { text, authorId } = req.body;
-
-    if (isNaN(postId)) {
-      throw new ApiError(400, 'Invalid postId');
-    }
-    if (!text) {
-      throw new ApiError(400, 'Comment text is required');
-    }
-    if (!authorId) {
-      throw new ApiError(400, 'authorId is required');
-    }
-
-    const newComment = await commentService.createComment(postId, { text, authorId });
-    res.status(201).json(newComment);
-  } catch (error) {
-    next(error instanceof ApiError ? error : new ApiError(500, 'Error creating comment'));
-  }
-};
