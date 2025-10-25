@@ -48,36 +48,38 @@ export const getPostById = async (id) => {
 };
 
 export const createPost = async (postData, authorId) => {
-    const { title, content } = postData; // No longer need authorId from here
-    try {
-        const [result] = await pool.query(
-            'INSERT INTO posts (title, content, authorId) VALUES (?, ?, ?)',
-            [title, content, authorId] // Use the authorId from the argument
-        );
-        const newPost = await getPostById(result.insertId);
-        return newPost;
-    } catch (error) {
-        if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+  const { title, content } = postData;
+  try {
+    const [result] = await pool.query(
+      'INSERT INTO posts (title, content, authorId) VALUES (?, ?, ?)',
+      [title, content, authorId]
+    );
+    const newPost = await getPostById(result.insertId);
+    return newPost;
+  } catch (error) {
+    if (error.code === 'ER_NO_REFERENCED_ROW_2') {
       throw new ApiError(400, 'Invalid author ID. User does not exist.');
     }
     throw new ApiError(500, 'Error creating post');
-    }
+  }
 };
 
-export const updatePost = async (id, postData) => {
+export const updatePost = async (id, postData, userId) => {
   const { title, content } = postData;
 
+  const post = await getPostById(id);
+  if (post.authorId !== userId) {
+    throw new ApiError(403, 'Forbidden: You do not have permission to edit this post.');
+  }
+
   try {
-    const [result] = await pool.query(
+    await pool.query(
       'UPDATE posts SET title = ?, content = ? WHERE id = ?',
       [title, content, id]
     );
 
-    if (result.affectedRows === 0) {
-      throw new ApiError(404, 'Post not found');
-    }
-
-    return { id, title, content };
+    const updatedPost = await getPostById(id);
+    return updatedPost;
   } catch (error) {
     if (error instanceof ApiError) throw error;
     throw new ApiError(500, 'Error updating post');
@@ -111,12 +113,19 @@ export const partiallyUpdatePost = async (id, updates) => {
   }
 };
 
-export const deletePost = async (id) => {
+export const deletePost = async (id, userId) => {
+  const post = await getPostById(id);
+  if (post.authorId !== userId) {
+    throw new ApiError(403, 'Forbidden: You do not have permission to delete this post.');
+  }
+
   try {
     const [result] = await pool.query('DELETE FROM posts WHERE id = ?', [id]);
+
     if (result.affectedRows === 0) {
       throw new ApiError(404, 'Post not found');
     }
+
     return { message: 'Post deleted successfully' };
   } catch (error) {
     if (error instanceof ApiError) throw error;
