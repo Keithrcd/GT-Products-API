@@ -4,6 +4,7 @@ import postRoutes from './src/routes/post.routes.js';
 import userRoutes from './src/routes/user.routes.js';
 import commentRoutes from './src/routes/comment.routes.js';
 import authRoutes from './src/routes/auth.routes.js';
+import photoRoutes from './src/routes/photo.routes.js'; 
 import { testConnection } from './src/config/db.js';
 import { errorHandler } from './src/middlewares/errorHandler.middleware.js'; 
 
@@ -13,10 +14,13 @@ const app = express();
 
 app.use(express.json());
 
+app.use('/uploads', express.static('uploads'));
+
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/photos', photoRoutes);
 
 app.use(errorHandler);
 
