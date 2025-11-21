@@ -36,7 +36,8 @@ router.get('/', commentController.getAllComments);
  *       404:
  *         description: Post not found
  */
-router.get('/post/:postId', commentController.getCommentsByPostId);
+
+router.get('/:postId/comments', commentController.getCommentsByPostId);
 
 /**
  * @openapi
